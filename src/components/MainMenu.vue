@@ -2,6 +2,15 @@
 const emit = defineEmits<{
   start: []
 }>()
+
+const bgParticles = Array.from({ length: 15 }, () => ({
+  left: Math.random() * 100 + '%',
+  top: Math.random() * 100 + '%',
+  animationDelay: Math.random() * 5 + 's',
+  animationDuration: 3 + Math.random() * 4 + 's',
+  width: 2 + Math.random() * 4 + 'px',
+  height: 2 + Math.random() * 4 + 'px',
+}))
 </script>
 
 <template>
@@ -52,15 +61,8 @@ const emit = defineEmits<{
     </div>
 
     <div class="bg-particles">
-      <div v-for="i in 15" :key="i" class="bg-particle"
-        :style="{
-          left: (Math.random() * 100) + '%',
-          top: (Math.random() * 100) + '%',
-          animationDelay: (Math.random() * 5) + 's',
-          animationDuration: (3 + Math.random() * 4) + 's',
-          width: (2 + Math.random() * 4) + 'px',
-          height: (2 + Math.random() * 4) + 'px',
-        }"
+      <div v-for="(p, i) in bgParticles" :key="i" class="bg-particle"
+        :style="p"
       />
     </div>
   </div>

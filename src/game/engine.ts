@@ -79,7 +79,7 @@ export class GameEngine {
     this.stats.wave = wave
     this.zombiesSpawned = 0
     this.zombiesKilledThisWave = 0
-    this.spawnTimer = 0
+    this.spawnTimer = SPAWN_INTERVAL
 
     const zombieCount = 5 + wave * 3
     const speedMul = 1 + (wave - 1) * 0.08

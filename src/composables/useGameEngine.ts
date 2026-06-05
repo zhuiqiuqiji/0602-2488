@@ -34,7 +34,23 @@ export function useGameEngine(canvasRef: Ref<HTMLCanvasElement | null>) {
     waveBreakTimer.value = Math.ceil(engine.waveBreakTimer)
   }
 
+  let loopRunning = false
+
+  function startLoop() {
+    if (loopRunning) return
+    loopRunning = true
+    lastTime = 0
+    animFrameId = requestAnimationFrame(gameLoop)
+  }
+
+  function stopLoop() {
+    loopRunning = false
+    cancelAnimationFrame(animFrameId)
+  }
+
   function gameLoop(timestamp: number) {
+    if (!loopRunning) return
+
     if (lastTime === 0) lastTime = timestamp
     const dt = Math.min((timestamp - lastTime) / 1000, 0.05)
     lastTime = timestamp
@@ -46,6 +62,11 @@ export function useGameEngine(canvasRef: Ref<HTMLCanvasElement | null>) {
       renderer.render(engine)
     }
 
+    if (engine.state === 'menu' || engine.state === 'gameover') {
+      loopRunning = false
+      return
+    }
+
     animFrameId = requestAnimationFrame(gameLoop)
   }
 
@@ -53,6 +74,7 @@ export function useGameEngine(canvasRef: Ref<HTMLCanvasElement | null>) {
     engine.startGame()
     lastTime = 0
     syncState()
+    startLoop()
   }
 
   function handleKeyDown(e: KeyboardEvent) {
@@ -111,6 +133,8 @@ export function useGameEngine(canvasRef: Ref<HTMLCanvasElement | null>) {
     canvas.height = window.innerHeight
     engine.setCanvasSize(canvas.width, canvas.height)
 
+    renderer.render(engine)
+
     window.addEventListener('keydown', handleKeyDown)
     window.addEventListener('keyup', handleKeyUp)
     window.addEventListener('resize', handleResize)
@@ -118,12 +142,10 @@ export function useGameEngine(canvasRef: Ref<HTMLCanvasElement | null>) {
     canvas.addEventListener('mousedown', handleMouseDown)
     window.addEventListener('mouseup', handleMouseUp)
     canvas.addEventListener('contextmenu', handleContextMenu)
-
-    animFrameId = requestAnimationFrame(gameLoop)
   })
 
   onUnmounted(() => {
-    cancelAnimationFrame(animFrameId)
+    stopLoop()
     window.removeEventListener('keydown', handleKeyDown)
     window.removeEventListener('keyup', handleKeyUp)
     window.removeEventListener('resize', handleResize)
